@@ -1,5 +1,12 @@
-pandas==2.2.2
-scikit-learn==1.4.2
-nltk==3.8.1
-joblib==1.4.2
-flask==3.0.2
+# flask==3.0.2
+# pandas==2.2.2
+# scikit-learn==1.4.2
+# nltk==3.8.1
+# joblib==1.4.2
+# numpy>=1.24.0
+# scipy>=1.10.0
+# threadpoolctl>=3.1.0
+streamlit
+nltk
+scikit-learn
+joblib
