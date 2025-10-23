@@ -42,7 +42,7 @@ ENV/
 .env.production.local
 
 # Model files (large binary files)
-*.joblib
+# *.joblib
 *.pkl
 *.h5
 *.model
