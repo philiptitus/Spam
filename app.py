@@ -57,18 +57,19 @@
 # # This is the WSGI entry point that Vercel will use
 # handler = app
 import streamlit as st
+from streamlit.web.server.websocket_headers import _get_websocket_headers
 from model import SpamClassifier
+import json
 
 st.set_page_config(page_title="Spam Detector", page_icon="📧")
+
+classifier = SpamClassifier()
 
 st.title("📧 Spam Detection App")
 st.write("Enter a message below to check if it’s spam or not.")
 
-classifier = SpamClassifier()
-
-# User input
+# --- UI SECTION ---
 user_input = st.text_area("Your message", placeholder="Type your message here...")
-
 if st.button("Predict"):
     if not user_input.strip():
         st.warning("Please enter a message.")
@@ -78,3 +79,28 @@ if st.button("Predict"):
             st.error("🚫 This message is likely spam!")
         else:
             st.success("✅ This message looks fine (Not Spam).")
+
+# --- API SECTION ---
+# Expose an API-like endpoint when accessed programmatically
+headers = _get_websocket_headers()
+if headers and "Referer" in headers:
+    referer = headers["Referer"]
+    if "/predict" in referer:
+        try:
+            import streamlit.runtime.scriptrunner.script_run_context as st_ctx
+            import streamlit.web.server.server as server
+
+            @server.request_handler("/predict")
+            def handle_predict(request):
+                if request.method == "POST":
+                    data = json.loads(request.body.decode("utf-8"))
+                    message = data.get("message", "")
+                    prediction = classifier.predict(message)
+                    return {
+                        "message": message,
+                        "prediction": prediction,
+                        "is_spam": prediction == "Spam",
+                    }
+                return {"error": "Only POST supported"}
+        except Exception:
+            pass
